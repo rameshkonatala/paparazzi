@@ -167,6 +167,7 @@ endif
 
 qt_project : $(SRCS_LIST)
 ifneq ($(PAPARAZZI_QT_GEN),)
+	@echo ./sw/tools/qt_project.py $(AIRCRAFT) $(CONF_XML) $(SRCS_LIST)
 	$(Q)./sw/tools/qt_project.py $(AIRCRAFT) $(CONF_XML) $(SRCS_LIST)
 endif
 
