@@ -184,7 +184,7 @@
 /* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/
 #ifndef ADC_CHANNEL_VSUPPLY
 #define ADC_CHANNEL_VSUPPLY ADC_2
-#define DefaultVoltageOfAdc(adc) (0.00975*adc)
+#define DefaultVoltageOfAdc(adc) (0.00828*adc)
 #else
 #define DefaultVoltageOfAdc(adc) (0.00384*adc)
 #endif

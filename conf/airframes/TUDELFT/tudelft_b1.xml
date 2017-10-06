@@ -48,18 +48,12 @@
     <target name="fbw" board="px4io_2.4" />
     <module name="motor_mixing" />
     <module name="radio_control" type="sbus">
+      <define name="RADIO_CONTROL_NB_CHANNEL" value="8"/>
       <configure name="SBUS_PORT" value="UART3"/>
-       <define name="RADIO_CONTROL_NB_CHANNEL" value="8"/>
       <define name="RADIO_FBW_MODE" value="RADIO_MODE"/>
       <define name="RADIO_KILL_SWITCH" value="RADIO_KILL"/>
       <define name="USE_KILL_SWITCH_FOR_MOTOR_ARMING" value="1" />
     </module>
-
-    <define name="USE_PWM5" value="1" />
-    <define name="USE_PWM6" value="1" />
-    <define name="USE_PWM7" value="1" />
-    <define name="USE_PWM8" value="1" />
-
     <define name="FBW_MODE_AUTO_ONLY" value="true"/>
     <!--  <module name="radio_control" type="spektrum">-->
     <!--    <define name="RADIO_CONTROL_SPEKTRUM_NO_SIGN" value="1"/>-->
@@ -71,6 +65,11 @@
     <module name="actuators" type="pwm">
       <define name="SERVO_HZ" value="400" />
     </module>
+
+<!--    <define name="ACTUATORS_PWM_NB" value="6" />
+    <define name="USE_PWM5" value="1" />
+    <define name="USE_PWM6" value="1" />-->
+
     <define name="RC_LOST_FBW_MODE" value="FBW_MODE_FAILSAFE" />
     <!-- Switch to Failsafe or to Autopilot on RC loss? -->
     <define name="RC_LOST_IN_AUTO_FBW_MODE" value="FBW_MODE_AUTO" />
@@ -86,7 +85,9 @@
     <module name="px4_flash">
       <configure name="PX4IO_UART" value="uart6"/>
     </module>
-    <module name="px4_gimbal" />
+    <module name="px4_gimbal">
+      <define name="PX4_GIMBAL_RC_CHAN" value="RADIO_AUX3"/>
+    </module>
     <module name="geo_mag" />
     <module name="air_data" />
     <module name="send_imu_mag_current" />
@@ -108,6 +109,9 @@
     <!-- 100Amp = 2Volt -> 2482,42 tick/100Amp"(0.0402832*adc)" -->
   </section>
   <section name="IMU" prefix="IMU_">
+    <define name="BODY_TO_IMU_PHI"   value="1." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="-2.6" unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="90." unit="deg"/>
     <!-- replace this with your own calibration -->
     <define name="ACCEL_X_NEUTRAL" value="49"/>
     <define name="ACCEL_Y_NEUTRAL" value="6"/>
@@ -137,24 +141,35 @@
     <set command="YAW" value="@YAW" />
   </rc_commands>
   <servos driver="Default">
-    <servo name="TOP_LEFT" no="2" min="1000" neutral="1100" max="2000" />
-    <servo name="TOP_RIGHT" no="0" min="1000" neutral="1100" max="2000" />
-    <servo name="BOTTOM_RIGHT" no="3" min="1000" neutral="1100" max="2000" />
-    <servo name="BOTTOM_LEFT" no="1" min="1000" neutral="1100" max="2000" />
+    <servo name="FRONT_LEFT" no="3" min="1000" neutral="1100" max="2000" />  <!-- CW-->
+    <servo name="FRONT_MOST_LEFT" no="4" min="1000" neutral="1100" max="2000" /> <!-- CCW-->
+    <servo name="FRONT_RIGHT" no="1" min="1000" neutral="1100" max="2000" /> <!-- CCW-->
+    <servo name="FRONT_MOST_RIGHT" no="5" min="1000" neutral="1100" max="2000" /> <!-- CW-->
+    <servo name="TAIL_RIGHT" no="0" min="1000" neutral="1100" max="2000" /> <!-- CCW-->
+    <servo name="TAIL_LEFT" no="2" min="1000" neutral="1100" max="2000" /> <!-- CW-->
   </servos>
   <section name="MIXING" prefix="MOTOR_MIXING_">
-    <define name="TRIM_ROLL" value="0" />
-    <define name="TRIM_PITCH" value="0" />
-    <define name="TRIM_YAW" value="0" />
-    <define name="REVERSE" value="FALSE" />
-    <define name="TYPE" value="QUAD_X" />
+    <define name="TRIM_ROLL" value="0"/>
+    <define name="TRIM_PITCH" value="0"/>
+    <define name="TRIM_YAW" value="0"/>
+
+    <define name="NB_MOTOR" value="6"/>
+    <define name="SCALE" value="256"/>
+
+    <define name="THRUST_COEF" value="{ 256, 256, 256, 256, 256, 256 }"/>
+    <define name="ROLL_COEF"   value="{ 256, 150, -256, -150, -100, 100 }"/>
+    <define name="PITCH_COEF"  value="{ 200, 200, 200, 200, -256, -256 }"/>
+    <define name="YAW_COEF"    value="{ 256, -150, -256, 150, 256, -256 }"/>
+
   </section>
   <command_laws>
     <call fun="motor_mixing_run(fbw_motors_on,FALSE,values)" />
-    <set servo="TOP_LEFT" value="motor_mixing.commands[MOTOR_FRONT_LEFT]" />
-    <set servo="TOP_RIGHT" value="motor_mixing.commands[MOTOR_FRONT_RIGHT]" />
-    <set servo="BOTTOM_RIGHT" value="motor_mixing.commands[MOTOR_BACK_RIGHT]" />
-    <set servo="BOTTOM_LEFT" value="motor_mixing.commands[MOTOR_BACK_LEFT]" />
+    <set servo="FRONT_MOST_LEFT" value="motor_mixing.commands[0]" />
+    <set servo="FRONT_LEFT" value="motor_mixing.commands[1]" />
+    <set servo="FRONT_MOST_RIGHT" value="motor_mixing.commands[2]" />
+    <set servo="FRONT_RIGHT" value="motor_mixing.commands[3]" />
+    <set servo="TAIL_RIGHT" value="motor_mixing.commands[4]" />
+    <set servo="TAIL_LEFT" value="motor_mixing.commands[5]" />
   </command_laws>
   <section name="AIR_DATA" prefix="AIR_DATA_">
     <define name="CALC_AIRSPEED" value="FALSE" />
@@ -261,8 +276,8 @@
   </section>
   <section name="BAT">
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="8700" />
-    <define name="CATASTROPHIC_BAT_LEVEL" value="4" unit="V" />
-    <define name="CRITIC_BAT_LEVEL" value="4" unit="V" />
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.2" unit="V" />
+    <define name="CRITIC_BAT_LEVEL" value="9.9" unit="V" />
     <define name="LOW_BAT_LEVEL" value="10.2" unit="V" />
     <define name="MAX_BAT_LEVEL" value="12.4" unit="V" />
   </section>
