@@ -41,7 +41,7 @@ void px4_gimbal_init() {
  void px4_set_gimbal_angle_periodic() {
    //reroute gimbal rc input from fbw to pwm output on ap
 
-   float value =radio_control.values[PX4_GIMBAL_RC_CHAN];
+   float value =-radio_control.values[PX4_GIMBAL_RC_CHAN];
 
    float range = PX4_GIMBAL_PWM_MAX - PX4_GIMBAL_PWM_MIN;
    value = ((MAX_PPRZ-value) / (float)MAX_PPRZ) * range + PX4_GIMBAL_PWM_MIN;
