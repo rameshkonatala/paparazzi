@@ -1,10 +1,10 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <!-- this is a quadrotor frame in X-configuration equipped with
-     * Autopilot:   Lisa/M 2.0 with STM32F1  http://wiki.paparazziuav.org/wiki/Lisa/M_v2.0
+     * Autopilot:   Lisa/M 2.1 with STM32F1  http://wiki.paparazziuav.org/wiki/Lisa/M_v2.1
      * IMU:         Aspirin 2.2              http://wiki.paparazziuav.org/wiki/AspirinIMU
      * Actuators:   HobbyKing Afro Slim 20A with BLHeli 14.0
-     * GPS:         UBlox                    http://wiki.paparazziuav.org/wiki/Subsystem/gps
+     * GPS:         Piksi                    http://wiki.paparazziuav.org/wiki/Subsystem/gps
      * RC:          one Spektrum sat         http://wiki.paparazziuav.org/wiki/Subsystem/radio_control#Spektrum
 -->
 
@@ -13,28 +13,37 @@
   </description>
 
   <firmware name="rotorcraft">
-    <target name="ap" board="lisa_m_2.0">
-      <module name="radio_control" type="spektrum">
-        <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
-        <define name="RADIO_MODE" value="RADIO_AUX2"/>
-      </module>
+    <target name="ap" board="lisa_mx_2.1">
       <configure name="NO_LUFTBOOT" value="1"/>
+      <configure name="FLASH_MODE" value="SWD" />
+      <configure name="USE_BARO_BOARD" value="0"/>
+
+      <define name="REMAP_UART3" value="TRUE"/>
       <!-- MPU6000 is configured to output data at 2kHz, but polled at 512Hz PERIODIC_FREQUENCY -->
     </target>
+
+    <module name="radio_control" type="spektrum">
+      <define name="RADIO_KILL_SWITCH" value="RADIO_AUX2"/>
+    </module>
 
     <module name="motor_mixing"/>
     <module name="actuators"     type="pwm">
       <define name="SERVO_HZ"    value="400"/>
     </module>
     <module name="telemetry"     type="xbee_api"/>
-    <module name="imu"           type="aspirin_v2.2"/>
-    <module name="gps"           type="ublox"/>
-    <module name="stabilization" type="indi_simple"/>
-    <module name="ahrs"          type="int_cmpl_quat">
-      <define name="AHRS_GRAVITY_HEURISTIC_FACTOR" value="30"/>
+    <module name="imu"           type="lisa_mx_v2.1"/>
+    <module name="gps"           type="piksi">
+      <configure name="GPS_PORT" value="UART4"/>
+      <define name="USE_PIKSI_EXT_ANTENNA" value="TRUE"/>
     </module>
-    <module name="ins"           type="hff"/>
-    <module name="guidance"      type="indi"/>
+    <module name="stabilization" type="int_quat"/>
+    <module name="ahrs"          type="int_cmpl_quat"/>
+    <module name="ins"           type="hff">
+      <define name="HFF_R_POS" value="2."/>
+      <define name="HFF_R_POS_MIN" value="0.1"/>
+      <define name="HFF_R_SPEED" value="2."/>
+      <define name="HFF_R_SPEED_MIN" value="0.1"/>
+    </module>
   </firmware>
 
   <modules>
@@ -53,7 +62,7 @@
     <axis name="ROLL"   failsafe_value="0"/>
     <axis name="PITCH"  failsafe_value="0"/>
     <axis name="YAW"    failsafe_value="0"/>
-    <axis name="THRUST" failsafe_value="0"/>
+    <axis name="THRUST" failsafe_value="5760"/>
   </commands>
 
   <section name="MIXING" prefix="MOTOR_MIXING_">
@@ -76,20 +85,24 @@
   </section>
 
   <section name="IMU" prefix="IMU_">
-    <define name="ACCEL_X_NEUTRAL" value="29"/>
-    <define name="ACCEL_Y_NEUTRAL" value="-5"/>
-    <define name="ACCEL_Z_NEUTRAL" value="-344"/>
-    <define name="ACCEL_X_SENS" value="4.88671674253" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="4.85140885386" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="4.89977338537" integer="16"/>
+    <define name="ACCEL_X_NEUTRAL" value="0"/>
+    <define name="ACCEL_Y_NEUTRAL" value="0"/>
+    <define name="ACCEL_Z_NEUTRAL" value="0"/>
+    <!--define name="ACCEL_X_NEUTRAL" value="-21"/>
+    <define name="ACCEL_Y_NEUTRAL" value="11"/>
+    <define name="ACCEL_Z_NEUTRAL" value="110"/>
+    <define name="ACCEL_X_SENS" value="4.90624309726" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="4.91507462015" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="4.88083232655" integer="16"/-->
 
     <!-- replace this with your own calibration -->
-    <define name="MAG_X_NEUTRAL" value="-88"/>
-    <define name="MAG_Y_NEUTRAL" value="42"/>
-    <define name="MAG_Z_NEUTRAL" value="44"/>
-    <define name="MAG_X_SENS" value="3.55840131062" integer="16"/>
-    <define name="MAG_Y_SENS" value="3.59312782171" integer="16"/>
-    <define name="MAG_Z_SENS" value="4.16199901926" integer="16"/>
+    
+    <define name="MAG_X_NEUTRAL" value="90"/>
+    <define name="MAG_Y_NEUTRAL" value="54"/>
+    <define name="MAG_Z_NEUTRAL" value="51"/>
+    <define name="MAG_X_SENS" value="3.79261527736" integer="16"/>
+    <define name="MAG_Y_SENS" value="3.80728506284" integer="16"/>
+    <define name="MAG_Z_SENS" value="3.86697677092" integer="16"/>
 
     <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
@@ -101,6 +114,7 @@
     <define name="H_X" value="0.3770441"/>
     <define name="H_Y" value="0.0193986"/>
     <define name="H_Z" value="0.9259921"/>
+    <define name="GRAVITY_HEURISTIC_FACTOR" value="0"/>
     <define name="USE_GPS_HEADING" value="0"/>
   </section>
 
@@ -125,9 +139,10 @@
 
  <section name="INS" prefix="INS_">
     <!-- Use GPS altitude measurments and set the R gain -->
-    <!-- define name="USE_GPS_ALT" value="1"/ -->
-    <!-- define name="VFF_R_GPS" value="0.01"/ -->
-    <!--<define name="VFF_VZ_R_GPS" value="0.01"/-->
+    <define name="USE_GPS_ALT" value="1"/>
+    <define name="USE_GPS_ALT_SPEED" value="1"/>
+    <define name="VFF_R_GPS" value=".5"/>
+    <define name="VFF_VZ_R_GPS" value=".5"/>
   </section>
 
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
@@ -184,8 +199,10 @@
     <define name="REF_RATE_R" value="28.0"/>
 
     <!-- second order filter parameters -->
-    <define name="FILT_CUTOFF" value="8.0"/>
-    <define name="FILT_CUTOFF_R" value="3.2"/>
+    <define name="FILT_OMEGA" value="50.0"/>
+    <define name="FILT_ZETA" value="0.7"/>
+    <define name="FILT_OMEGA_R" value="20.0"/>
+    <define name="FILT_ZETA_R" value="0.55"/>
 
     <!-- first order actuator dynamics -->
     <define name="ACT_DYN_P" value="0.03"/>
@@ -198,32 +215,32 @@
   </section>
 
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
-    <define name="HOVER_KP"    value="150"/>
-    <define name="HOVER_KD"    value="80"/>
-    <define name="HOVER_KI"    value="20"/>
-    <define name="NOMINAL_HOVER_THROTTLE" value="0.5"/>
-    <define name="ADAPT_THROTTLE_ENABLED" value="FALSE"/>
+    <define name="HOVER_KP"    value="250"/>
+    <define name="HOVER_KD"    value="150"/>
+    <define name="HOVER_KI"    value="0"/>
+    <define name="NOMINAL_HOVER_THROTTLE" value="0.65"/>
+    <define name="ADAPT_THROTTLE_ENABLED" value="TRUE"/>
   </section>
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
     <define name="MAX_BANK" value="35" unit="deg"/>
     <define name="USE_SPEED_REF" value="TRUE"/>
-    <define name="PGAIN" value="50"/>
-    <define name="DGAIN" value="100"/>
+    <define name="PGAIN" value="150"/>
+    <define name="DGAIN" value="150"/>
     <define name="AGAIN" value="70"/>
-    <define name="IGAIN" value="20"/>
+    <define name="IGAIN" value="10"/>
   </section>
 
   <section name="AUTOPILOT">
     <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
-    <define name="MODE_AUTO1"  value="AP_MODE_HOVER_Z_HOLD"/>
-    <define name="MODE_AUTO2"  value="AP_MODE_NAV"/>
+    <define name="MODE_AUTO1"  value="AP_MODE_NAV"/>
+    <define name="MODE_AUTO2"  value="AP_MODE_MODULE"/>
   </section>
 
   <section name="BAT">
-    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
-    <define name="CRITIC_BAT_LEVEL" value="9.6" unit="V"/>
-    <define name="LOW_BAT_LEVEL" value="10.1" unit="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.8" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="10.3" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="10.5" unit="V"/>
     <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
   </section>
 

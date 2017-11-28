@@ -1,7 +1,9 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <airframe name="bebop2_opticflow">
-  <description>?
+  <description>Bebop 2 configured for optical flow landing using the bottom camera.
+This also has modules to perform onboard logging of data and video as well as video streaming.
+This is based on examples/bebop2_opticflow.
   </description>
 
   <firmware name="rotorcraft">
@@ -25,16 +27,11 @@
     <!--    <define name="INS_INT_GPS_ID" value="ABI_DISABLE"/>
     </module> -->
     
-    <!-- <module name="geo_mag"/>
-    <module name="send_imu_mag_current"/> -->
-    <module name="air_data"/>
-    <!-- <module name="gps" type="ubx_ucenter"/> -->
     <module name="logger_file">
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
     </module>
 
     <module name="video_thread"/>
-    <module name="pose_history"/>
 
     <module name="cv_opticflow">
       <define name="OPTICFLOW_CAMERA" value="bottom_camera"/>
