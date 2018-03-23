@@ -20,13 +20,17 @@
  */
 
 /**
- * @file modules/computer_vision/colorfilter.h
+ * @file modules/computer_vision/colorfilter_new.hpp
  */
 
 #ifndef COLORFILTER_CV_PLUGIN_H
 #define COLORFILTER_CV_PLUGIN_H
 
-#include <stdint.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 #include "modules/computer_vision/cv.h"
 
 // Module functions
@@ -44,5 +48,9 @@ extern uint8_t color_cr_max;
 extern float color_count;
 
 extern struct video_listener *listener;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* COLORFILTER_CV_PLUGIN_H */

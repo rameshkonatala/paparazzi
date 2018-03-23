@@ -23,10 +23,9 @@
  * opencv
  */
 
-#ifndef CV_OPENCVDEMO_H
-#define CV_OPENCVDEMO_H
-
-extern int color_count;
+#ifndef CV_OPENCVDEMO2_H
+#define CV_OPENCVDEMO2_H
+#include "modules/computer_vision/opencv_ourmainf.h"
 extern void opencvdemo_init(void);
 
 #endif

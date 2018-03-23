@@ -30,6 +30,7 @@
 #define OPENCV_IMAGE_FUNCTIONS_H
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+using namespace cv;
 /**
  * Converts cv::Mat with three channels to a YUV422 image.
  * Note that the rgb function first converts to YUV, and then to YUV422 making

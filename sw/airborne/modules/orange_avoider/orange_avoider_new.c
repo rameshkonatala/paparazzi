@@ -11,10 +11,7 @@
  */
 
 #include "modules/orange_avoider/orange_avoider.h"
-//#include "modules/computer_vision/colorfilter_new.h"
-#include "modules/computer_vision/cv_opencvdemo2.h"
-#include "modules/computer_vision/opencv_ourmainf.h"
-
+#include "modules/computer_vision/colorfilter.h"
 #include "firmwares/rotorcraft/navigation.h"
 #include "generated/flight_plan.h"
 #include "generated/airframe.h"
@@ -60,8 +57,7 @@
 
 
 uint8_t safeToGoForwards        = false;
-//int tresholdColorCount          = 0.05 * 124800; // 520 x 240 = 124.800 total pixels
-int tresholdColorCount      = 0.95;
+int tresholdColorCount          = 0.05 * 124800; // 520 x 240 = 124.800 total pixels
 float incrementForAvoidance;
 uint16_t trajectoryConfidence   = 1;
 float maxDistance               = 2.25;
@@ -72,12 +68,12 @@ float maxDistance               = 2.25;
 void orange_avoider_init()
 {
   // Initialise the variables of the colorfilter to accept orange
-//  color_lum_min = ORANGE_AVOIDER_LUM_MIN;
-//  color_lum_max = ORANGE_AVOIDER_LUM_MAX;
-//  color_cb_min  = ORANGE_AVOIDER_CB_MIN;
-//  color_cb_max  = ORANGE_AVOIDER_CB_MAX;
-//  color_cr_min  = ORANGE_AVOIDER_CR_MIN;
-//  color_cr_max  = ORANGE_AVOIDER_CR_MAX;
+  color_lum_min = ORANGE_AVOIDER_LUM_MIN;
+  color_lum_max = ORANGE_AVOIDER_LUM_MAX;
+  color_cb_min  = ORANGE_AVOIDER_CB_MIN;
+  color_cb_max  = ORANGE_AVOIDER_CB_MAX;
+  color_cr_min  = ORANGE_AVOIDER_CR_MIN;
+  color_cr_max  = ORANGE_AVOIDER_CR_MAX;
   // Initialise random values
   srand(time(NULL));
   chooseRandomIncrementAvoidance();
@@ -91,7 +87,7 @@ void orange_avoider_periodic()
   // Check the amount of orange. If this is above a threshold
   // you want to turn a certain amount of degrees
   safeToGoForwards = color_count < tresholdColorCount;
-  VERBOSE_PRINT("Color_count: %f  threshold: %d safe: %d \n", color_count, tresholdColorCount, safeToGoForwards);
+  VERBOSE_PRINT("Color_count: %d  threshold: %d safe: %d \n", color_count, tresholdColorCount, safeToGoForwards);
   float moveDistance = fmin(maxDistance, 0.05 * trajectoryConfidence);
   if (safeToGoForwards) {
     moveWaypointForward(WP_GOAL, moveDistance);
