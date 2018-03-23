@@ -107,12 +107,13 @@ int opencv_ourmainf(char *img, int width, int height)
   cols = imgref.cols;
 
 
-  hor_sec = int(0.15*cols);
-  ver_sec = int(0.01*rows);
+  hor_sec = int(0.3*cols);
+  ver_sec = int(0.3*rows);
   hor_mid = int(cols/2);
   ver_mid = int(rows/2);
-  cv::Rect myROI(0,ver_mid-ver_sec/2, hor_sec,ver_mid+ver_sec/2);
-  //VERBOSE_PRINT("ver_mid-ver_sec/2 = %d , ver_mid+ver_sec/2 = %d", ver_mid-ver_sec/2, ver_mid+ver_sec/2);
+  cv::Rect myROI(0,ver_mid-ver_sec/4, hor_sec/2,ver_sec/2);
+  //cv::Rect myROI(0,0,100,100);
+  //VERBOSE_PRINT("hor_sec = %d, ver_mid-ver_sec/2 = %d , ver_mid+ver_sec/2 = %d", hor_sec, ver_mid-ver_sec/2, ver_mid+ver_sec/2);
   imgref = imgref(myROI);
 
   calcHist( &imgref, 1, channels, Mat(), // do not use mask
@@ -121,16 +122,16 @@ int opencv_ourmainf(char *img, int width, int height)
                false );
   normalize( hist, hist, 0, 255, NORM_MINMAX, -1, Mat() );
 
-  calcBackProject( &imgmain, 1, channels, hist, backproj, ranges, 5, true );
+  calcBackProject( &imgmain, 1, channels, hist, backproj, ranges, 10, true );
   element = getStructuringElement( MORPH_ELLIPSE, Size( 5,5 ));
   filter2D(backproj, backproj, -1, element);
   threshold(backproj, imgmain, 60, 255, 0);
-  cv::Rect recta(0,ver_mid, hor_sec,ver_mid	);
+  cv::Rect recta(0,ver_mid-ver_sec/2, hor_sec,ver_sec);
   imgsec = imgmain(recta);
   color_count = countNonZero(imgsec);
-  //color_count = color_count/(imgsec.rows*imgsec.cols);
+  color_count = color_count/(imgsec.rows*imgsec.cols);
   cv::rectangle(imgmain,recta,Scalar(0,0,0),5);
-  VERBOSE_PRINT(", color count = %d \n",color_count);
+  //VERBOSE_PRINT("no. of pixels = %d , color count = %d \n",imgsec.rows*imgsec.cols, color_count);
   //cv::resize(imgmain, imgmain, cv::Size(), 0.6, 0.6);
   //coloryuv_opencv_to_yuv422(imgmain, img, rows, cols);
   //colorrgb_opencv_to_yuv422(image, img, width, height);

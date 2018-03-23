@@ -53,7 +53,7 @@
     
     <module name="sliceimage">
       <define name="VIDEO_CAPTURE_CAMERA" value="front_camera" />
-      <define name="VIDEO_CAPTURE_PATH" value="/home/chatto/paparazzi" />
+      <define name="VIDEO_CAPTURE_PATH" value="/home/rameshkonatala/paparazzi" />
     </module>
     <module name="cv_opencvdemo2">
       <define name="OPENCVDEMO_CAMERA" value="front_camera" />
@@ -66,7 +66,7 @@
 <!--     <module name="cv_colorfilter"> -->
 <!--       <define name="COLORFILTER_CAMERA" value="front_camera" /> -->
 <!--     </module> -->
-    <module name="orange_avoider" />
+    <module name="our_avoider" />
     <module name="video_rtp_stream">
       <define name="VIEWVIDEO_CAMERA" value="front_camera" />
       <define name="VIEWVIDEO_FPS" value="18" />

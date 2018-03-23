@@ -15,7 +15,7 @@
     <file name="cv_opencvdemo2.h"/>
   </header>
   <init fun="opencvdemo_init()"/>
-  <makefile target="ap">
+  <makefile>
     <file name="cv_opencvdemo2.c"/>
     <file name="opencv_ourmainf.cpp"/>
     <file name="opencv_image_functions.cpp"/>
@@ -34,9 +34,8 @@
 	<flag name="LDFLAGS" value="lm" />
 	<flag name="LDFLAGS" value="lpthread" />
 	<flag name="LDFLAGS" value="lrt" />
-
   </makefile>
-  <makefile target="nps">
+  <makefile>
     <file name="cv_opencvdemo2.c"/>
     <file name="opencv_ourmainf.cpp"/>
     <file name="opencv_image_functions.cpp"/>
