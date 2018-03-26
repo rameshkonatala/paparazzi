@@ -11,10 +11,7 @@
  */
 
 #include "modules/orange_avoider/orange_avoider.h"
-//#include "modules/computer_vision/colorfilter_new.h"
-#include "modules/computer_vision/cv_opencvdemo2.h"
-#include "modules/computer_vision/opencv_ourmainf.h"
-
+#include "modules/computer_vision/colorfilter.h"
 #include "firmwares/rotorcraft/navigation.h"
 #include "generated/flight_plan.h"
 #include "generated/airframe.h"

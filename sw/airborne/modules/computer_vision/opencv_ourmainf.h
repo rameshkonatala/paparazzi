@@ -18,39 +18,25 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/computer_vision/cv_opencvdemo.c"
+ * @file "modules/computer_vision/cv_opencvdemo.h"
  * @author C. De Wagter
  * A simple module showing what you can do with opencv on the bebop.
  */
 
-#include "modules/computer_vision/cv.h"
-#include "modules/computer_vision/cv_opencvdemo.h"
-#include "modules/computer_vision/opencv_example.h"
+#ifndef OPENCV_OURMAINF_H
+#define OPENCV_OURMAINF_H
 
-
-#ifndef OPENCVDEMO_FPS
-#define OPENCVDEMO_FPS 0       ///< Default FPS (zero means run at camera fps)
+#ifdef __cplusplus
+extern "C" {
 #endif
-PRINT_CONFIG_VAR(OPENCVDEMO_FPS)
 
-int color_count= 0;
-// Function
-struct image_t *opencv_func(struct image_t *img);
-struct image_t *opencv_func(struct image_t *img)
-{
+extern float color_count;
+int opencv_ourmainf(char *img, int width, int height);
 
-  if (img->type == IMAGE_YUV422) {
-    // Call OpenCV (C++ from paparazzi C function)
-    opencv_example((char *) img->buf, img->w, img->h);
-  }
 
-// opencv_example(NULL, 10,10);
-
-  return NULL;
+#ifdef __cplusplus
 }
+#endif
 
-void opencvdemo_init(void)
-{
-  cv_add_to_device(&OPENCVDEMO_CAMERA, opencv_func, OPENCVDEMO_FPS);
-}
+#endif
 

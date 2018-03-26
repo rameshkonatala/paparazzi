@@ -20,22 +20,31 @@
  */
 
 /**
- * @file modules/computer_vision/colorfilter.c
+ * @file modules/computer_vision/colorfilter_new.cpp
  */
 
 // Own header
-#include "modules/computer_vision/colorfilter.h"
+#include "modules/computer_vision/colorfilter_new.h"
 
-#include <stdio.h>
+#include "modules/computer_vision/cv.h"
+#include "modules/computer_vision/opencv_example.h"
+
+#include "opencv2/imgproc/imgproc.hpp"
+//#include "/home/chatto/paparazzi/sw/ext/opencv_bebop/opencv/modules/imgproc/include/opencv2/imgproc.hpp"
+//#include <stdio.h>
+//#include "/home/chatto/paparazzi/sw/ext/opencv_bebop/opencv/modules/core/include/opencv2/core.hpp"
 #include <opencv2/core/core.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
+//#include <opencv2/imgproc/imgproc.hpp>
 #include "opencv2/highgui/highgui.hpp"
-using namespace cv;
 #include "opencv_image_functions.h"
+//#include <opencv2/nonfree/features2d.hpp>
 
 #include "modules/sliceimage/sliceimage.h"
 
 #include "modules/computer_vision/lib/vision/image.h"
+
+using namespace std;
+using namespace cv;
 
 #ifndef COLORFILTER_FPS
 #define COLORFILTER_FPS 0       ///< Default FPS (zero means run at camera fps)
@@ -49,6 +58,7 @@ PRINT_CONFIG_VAR(COLORFILTER_FPS)
 PRINT_CONFIG_VAR(COLORFILTER_SEND_OBSTACLE)
 
 struct video_listener *listener = NULL;
+
 #include "subsystems/abi.h"
 // Filter Settings
 uint8_t color_lum_min = 105;
@@ -62,11 +72,12 @@ uint8_t color_cr_max  = 255;
 float color_count = 0;
 int hor_sec, ver_sec,hor_mid;
 int ubins = 256, vbins = 256;
+int histSize[] = {ubins, vbins};
 float uranges[] = { 0, 255 };
 float vranges[] = { 0, 255 };
 int channels[] = {1,2};
 const float* ranges[] = { uranges, vranges };
-Mat M, element;
+Mat element, imgsec, imgmain1, imgref1;
 MatND backproj;MatND hist;
 
 
@@ -79,15 +90,27 @@ struct image_t *colorfilter_func(struct image_t *img)
   // Filter
   //Convert image into opencv format
   Mat imgmain(img->h, img->w, CV_8UC2, (char *) img->buf);
-  Mat imgref(imgshot->h, imgshot->w, CV_8UC2, (char *) imgshot->buf);
+  Mat imgref(imgshot.h, imgshot.w, CV_8UC2, (char *) imgshot.buf);
 
   //Rotate
-  rows,cols = imgmain.shape;
+  rows=imgmain.rows;
+  cols=imgmain.cols;
 
-  M = getRotationMatrix2D(Point(cols/2,rows/2),270,1);
-  imgmain = warpAffine(imgmain,M,(cols,rows));
-  imgref = warpAffine(imgref,M,(cols,rows));
-  rows,cols = imgmain.shape;
+  Mat image;
+  cvtColor(imgmain, imgmain, CV_YUV2GRAY_Y422);
+  cvtColor(imgref, imgref, CV_YUV2GRAY_Y422);
+  int edgeThresh = 35;
+  //Canny(image, image, edgeThresh, edgeThresh * 3);
+ /* cvtColor(imgmain, imgmain, CV_YUV2RGB_Y422);
+  cvtColor(imgmain, imgmain, CV_RGB2YUV);
+  cvtColor(imgref, imgref, CV_YUV2RGB_Y422);
+  cvtColor(imgref, imgref, CV_RGB2YUV);*/
+
+  Mat M = getRotationMatrix2D(cv::Point2f(cols/2,rows/2),270,1);
+  warpAffine(imgmain,imgmain1,M,Size(cols,rows));
+  warpAffine(imgref,imgref1,M,Size(cols,rows));
+  rows=imgmain1.rows;
+  cols=imgmain1.cols;
 
   //rows,cols = imgref.shape;
 
@@ -97,26 +120,26 @@ struct image_t *colorfilter_func(struct image_t *img)
   hor_mid = int(cols/2);
   //ver_mid = int(rows/2);
   cv::Rect myROI(hor_mid-hor_sec/2,rows-ver_sec/2, hor_sec,ver_sec/2);
-  imgref = imgref(myROI);
+  imgref1 = imgref1(myROI);
 
-  calcHist( &imgref, 1, channels, Mat(), // do not use mask
+  calcHist( &imgref1, 1, channels, Mat(), // do not use mask
                hist, 2, histSize, ranges,
                true, // the histogram is uniform
                false );
   normalize( hist, hist, 0, 255, NORM_MINMAX, -1, Mat() );
 
-  calcBackProject( &imgmain, 1, channels, hist, backproj, ranges, 5, true );
+  calcBackProject( &imgmain1, 1, channels, hist, backproj, ranges, 5, true );
   element = getStructuringElement( MORPH_ELLIPSE, Size( 5,5 ));
   filter2D(backproj, backproj, -1, element);
-  threshold(backproj, imgmain, 60, 255, 0);
-  cv::Rect recta(hor_mid-hor_sec,frame.rows-ver_sec, 2*hor_sec,ver_sec);
-  M = imgmain(recta);
-  color_count = countNonZero(M);
-  color_count = color_count/(M.rows*M.cols);
-  coloryuv_opencv_to_yuv422(imgmain, (char *) img->buf, img->w, img->h);
+  threshold(backproj, imgmain1, 60, 255, 0);
+  cv::Rect recta(hor_mid-hor_sec,rows-ver_sec, 2*hor_sec,ver_sec);
+  imgsec = imgmain1(recta);
+  color_count = countNonZero(imgsec);
+  color_count = color_count/(imgsec.rows*imgsec.cols);
+  //coloryuv_opencv_to_yuv422(imgmain, (char *) img->buf, img->w, img->h);
   
   //Segment the reference image
-
+/*
   	
   /*color_count = image_yuv422_colorfilt(img, img,
                                        color_lum_min, color_lum_max,
