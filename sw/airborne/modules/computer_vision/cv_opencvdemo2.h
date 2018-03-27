@@ -28,7 +28,6 @@
 
 #include "modules/computer_vision/opencv_ourmainf.h"
 
-extern float color_count;
 
 extern void opencvdemo_init(void);
 

@@ -1,6 +1,6 @@
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 
-<flight_plan alt="1.0" ground_alt="0" lat0="51.9906361" lon0="4.3767874" max_dist_from_home="8" name="Bebop avoid orange TU Delft Cyberzoo" security_height="0.4">
+<flight_plan alt="0.65" ground_alt="0" lat0="51.9906361" lon0="4.3767874" max_dist_from_home="8" name="Bebop avoid orange TU Delft Cyberzoo" security_height="0.4">
   <header>
     #include "subsystems/datalink/datalink.h"
     #include "subsystems/electrical.h"
@@ -98,11 +98,12 @@
       <call_once fun="NavResurrect()"/>
     </block>
     <block key="t" name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
-      <exception cond="GetPosAlt() > 1.0" deroute="Standby"/>
+      <exception cond="GetPosAlt() > 0.5" deroute="Standby"/>
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
       <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
     </block>
     <block key="s" name="Standby" strip_button="Standby" strip_icon="home.png">
+      <call_once fun="video_capture_shoot()"/>
       <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
       <stay wp="STDBY"/>
     </block>
@@ -121,7 +122,7 @@
     </block>
     <block name="GetIntoObstacleZone">
       <while cond="!InsideObstacleZone(GetPosX(),GetPosY())">
-        <call_once fun="moveWaypointForward(WP_GOAL, 0.1)"/>
+        <call_once fun="moveWaypointForward(WP_GOAL, 0.2)"/>
         <go wp="GOAL"/>
       </while>
       <deroute block="START"/>

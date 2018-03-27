@@ -30,6 +30,7 @@
 extern "C" {
 #endif
 
+extern float color_count;
 int opencv_ourmainf(char *img, int width, int height);
 
 #ifdef __cplusplus

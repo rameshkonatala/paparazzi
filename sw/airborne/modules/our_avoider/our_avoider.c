@@ -21,6 +21,8 @@
 #include <stdlib.h>
 
 #include "modules/computer_vision/cv_opencvdemo2.h"
+#include "modules/computer_vision/opencv_ourmainf.h"
+
 
 
 #define ORANGE_AVOIDER_VERBOSE TRUE
@@ -35,7 +37,8 @@
 
 
 uint8_t safeToGoForwards        = false;
-int tresholdColorCount          = 0.05 * 124800; // 520 x 240 = 124.800 total pixels
+//int tresholdColorCount          = 0.05 * 124800; // 520 x 240 = 124.800 total pixels
+float tresholdColorCount          = 0.8;
 float incrementForAvoidance;
 uint16_t trajectoryConfidence   = 1;
 float maxDistance               = 2.25;
@@ -58,19 +61,22 @@ void our_avoider_periodic()
 {
   // Check the amount of orange. If this is above a threshold
   // you want to turn a certain amount of degrees
-  safeToGoForwards = color_count < tresholdColorCount;
-  VERBOSE_PRINT("Color_count: %d  threshold: %d safe: %d \n", color_count, tresholdColorCount, safeToGoForwards);
+  safeToGoForwards = color_count > tresholdColorCount;
+  VERBOSE_PRINT("Color_count: %f  \n", color_count, tresholdColorCount, safeToGoForwards);
+  printf("Color_count: %f  \n", color_count, tresholdColorCount, safeToGoForwards);
   float moveDistance = fmin(maxDistance, 0.05 * trajectoryConfidence);
   if (safeToGoForwards) {
+	  VERBOSE_PRINT("Color_count: %f  threshold: %f safe: %d \n", color_count, tresholdColorCount, safeToGoForwards);
     moveWaypointForward(WP_GOAL, moveDistance);
-    moveWaypointForward(WP_TRAJECTORY, 1.25 * moveDistance);
+    moveWaypointForward(WP_TRAJECTORY, 1 * moveDistance);
     nav_set_heading_towards_waypoint(WP_GOAL);
     chooseRandomIncrementAvoidance();
     trajectoryConfidence += 1;
   } else {
+	  VERBOSE_PRINT("Color_count: %f !!!!!!!!!!! STOP !!!!!!!!!!", color_count, tresholdColorCount, safeToGoForwards);
     waypoint_set_here_2d(WP_GOAL);
     waypoint_set_here_2d(WP_TRAJECTORY);
-    increase_nav_heading(&nav_heading, incrementForAvoidance);
+    increase_nav_heading(&nav_heading, 90);
     if (trajectoryConfidence > 5) {
       trajectoryConfidence -= 4;
     } else {

@@ -41,6 +41,11 @@ using namespace cv;
 
 // Variables declaration
 float color_count = 0;
+
+// Our comparison rectangle:
+int hrec; 
+int wrec;
+
 int hor_sec, ver_sec,hor_mid, ver_mid;
 int ubins = 256, vbins = 256;
 int histSize[] = {ubins, vbins};
@@ -77,6 +82,10 @@ int opencv_ourmainf(char *raw_img_data, int width, int height)
   ver_sec = int(0.3*rows);
   hor_mid = int(cols/2);
   ver_mid = int(rows/2);
+  
+  hrec = 30;
+  wrec = 200;
+  
   cv::Rect myROI(0,ver_mid-ver_sec/4, hor_sec/2,ver_sec/2);
   
   imgref = imgref(myROI);
@@ -91,11 +100,11 @@ int opencv_ourmainf(char *raw_img_data, int width, int height)
     element = getStructuringElement( MORPH_ELLIPSE, Size( 5,5 ));
     filter2D(backproj, backproj, -1, element);
     threshold(backproj, imgmain, 60, 255, 0);
-    cv::Rect recta(0,ver_mid-ver_sec/2, hor_sec,ver_sec);
+    cv::Rect recta(0,ver_mid-wrec/2, hrec,wrec);
     imgsec = imgmain(recta);
     color_count = countNonZero(imgsec);
     color_count = color_count/(imgsec.rows*imgsec.cols);
-    cv::rectangle(imgmain,recta,Scalar(0,0,0),5);
+    cv::rectangle(imgmain,recta,Scalar(0,0,0),1);
     
     grayscale_opencv_to_yuv422(imgmain, raw_img_data, imgmain.cols, imgmain.rows);
     
