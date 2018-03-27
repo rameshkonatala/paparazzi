@@ -89,12 +89,9 @@
       <call_once fun="NavKillThrottle()"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
-    
     <block key="p" name="Take photo" strip_button="take photo" strip_icon="digital-camera.png">
 	  <call_once fun="video_capture_shoot()"/>
 	</block>
-	
-	
     <block key="r" name="Start Engine">
       <call_once fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
