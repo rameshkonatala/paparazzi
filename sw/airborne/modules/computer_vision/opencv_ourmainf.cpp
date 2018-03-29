@@ -56,13 +56,13 @@ float color_count = 0;
 
 // Size of rectangle where pixels are counted
 
-int hrec = 30; //height in pixels
+int hrec = 50; //height in pixels
 int wrec = 200; //width in pixels
 
 //Define size of the reference grass patch
 
 int hor_sec = 100; //width in pixels
-int ver_sec = 40;//height pixels
+int ver_sec = 100;//height pixels
 
 //Define size of the region where algorithm is run
 int w_algo = 300; //width
@@ -72,7 +72,7 @@ int h_algo = 100; //height
 int hor_mid;   //mid width
 int ver_mid;   //mid height
 
-//Histogram Backprojection specifications
+//Histogram Backprojection specifications //??? TRY TO USE Y CHANNEL AS WELL ????
 int ubins = 256, vbins = 256;
 int histSize[] = {ubins, vbins};
 float uranges[] = { 0, 255 };
@@ -81,88 +81,110 @@ int channels[] = {1,2};
 const float* ranges[] = { uranges, vranges };
 
 //Extra storage matrices used
-Mat element, imgsec, imgmain1, imgref1;
+Mat element, imgsec, algo_img, imgref1;
 MatND backproj;MatND hist;
 
 //to store the no. of rows and cols
 int rows,cols;
 
+// Use this to print variables and debug
+// VERBOSE_PRINT("%d,%d,%d,%d", 0,hor_mid-hor_sec/2, ver_sec, hor_sec);
 
 //Function
 int opencv_ourmainf(char *raw_img_data, int width, int height)
 {
-  // Create a new image, using the original bebop image.
-  Mat imgmain(height, width, CV_8UC2, raw_img_data);
-  Mat imgref(imgshot.h, imgshot.w, CV_8UC2, (char *) imgshot.buf);
+    // Create a new image, using the original bebop image.
+    Mat imgmain(height, width, CV_8UC2, raw_img_data);
+    Mat imgref(imgshot.h, imgshot.w, CV_8UC2, (char *) imgshot.buf);
+
+    //No. of rows and cols in the matrices
+    rows = imgref.rows;
+    cols = imgref.cols;
+    //Determine matrix middle indices
+    hor_mid = rows/2; //mid width
+    ver_mid = cols/2; //mid height
+
+    //Cut out the grass patch from the reference image
+    cv::Rect myROI(0,hor_mid-hor_sec/2, ver_sec, hor_sec);
+    imgref = imgref(myROI);
+
+    //Select section of the main image to be processed
+
+    cv::Rect algo_box(0,hor_mid-w_algo/2, h_algo, w_algo);
+    algo_img = imgmain(algo_box);
+
+    //No. of rows and cols in the image section
+    rows = algo_img.rows;
+    cols = algo_img.cols;
+    //Determine matrix middle indices
+    hor_mid = rows/2; //mid width
+    ver_mid = cols/2; //mid height
+
+
+    //Convert color from YUV422 to opencv compatible YUV
+  
+    cvtColor(algo_img, algo_img, CV_YUV2RGB_Y422);
+    cvtColor(algo_img, algo_img, CV_RGB2YUV);
+    cvtColor(imgref, imgref, CV_YUV2RGB_Y422);
+    cvtColor(imgref, imgref, CV_RGB2YUV);
   
 
-  //Convert color from YUV422 to opencv compatible YUV
-  
-  cvtColor(imgmain, imgmain, CV_YUV2RGB_Y422);
-  cvtColor(imgmain, imgmain, CV_RGB2YUV);
-  cvtColor(imgref, imgref, CV_YUV2RGB_Y422);
-  cvtColor(imgref, imgref, CV_RGB2YUV);
-  
-  // Cut out the grass patch from the reference image
+   //Histogram Calculation (Only using U and V channels)
 
-  rows = imgref.rows;
-  cols = imgref.cols;
-  hor_mid = rows/2;
-  ver_mid = cols/2;
- // VERBOSE_PRINT("%d,%d,%d,%d", 0,hor_mid-hor_sec/2, ver_sec, hor_sec);
-
-  cv::Rect myROI(0,hor_mid-hor_sec/2, ver_sec, hor_sec);
-  
-  imgref = imgref(myROI);
-  
-  //Histogram Calculation
-
-  calcHist( &imgref, 1, channels, Mat(), // do not use mask
+   calcHist( &imgref, 1, channels, Mat(), // do not use mask
                  hist, 2, histSize, ranges,
                  true, // the histogram is uniform
                  false );
-    normalize( hist, hist, 0, 255, NORM_MINMAX, -1, Mat() );
+   normalize( hist, hist, 0, 255, NORM_MINMAX, -1, Mat() );
 
   //Histogram Backprojection
 
-    calcBackProject( &imgmain, 1, channels, hist, backproj, ranges, 10, true );
+   calcBackProject( &algo_img, 1, channels, hist, backproj, ranges, 10, true );
 
-  //Blurring to remove noise
+   //Blurring to remove noise
 
-    element = getStructuringElement( MORPH_ELLIPSE, Size( 5,5 ));
-    filter2D(backproj, backproj, -1, element);
+   element = getStructuringElement( MORPH_ELLIPSE, Size( 5,5 ));
+   filter2D(backproj, backproj, -1, element);
 
-  //thresholding (Makes the image binary => Pixel values either 0 or 255)
-    threshold(backproj, imgmain, 60, 255, 0);
+   //thresholding (Makes the image binary => Pixel values either 0 or 255)
+   threshold(backproj, algo_img, 60, 255, 0);
 
-  //Define the rectangle where pixels are counted
+   //Define the rectangle where pixels are counted
 
-    cv::Rect recta(0,hor_mid-wrec/2, hrec,wrec);
-    imgsec = imgmain(recta);
-  //Count no. of white pixels
-    color_count = countNonZero(imgsec);
+   cv::Rect recta(0,hor_mid-wrec/2, hrec,wrec);
+   imgsec = algo_img(recta);
 
-  //White pixel ratio inside the rectangle
-    color_count = color_count/(imgsec.rows*imgsec.cols);
+   //Count no. of white pixels
+   color_count = countNonZero(imgsec);
 
-  //Draw the rectangle on the main image
-    cv::rectangle(imgmain,recta,Scalar(0,0,0),1);
-    //cv::rectangle(imgmain,myROI,Scalar(255,255,255),1);
+   //White pixel ratio inside the rectangle
+   color_count = color_count/(imgsec.rows*imgsec.cols);
+
+   //Draw the rectangle on the main image
+   cv::rectangle(algo_img,recta,Scalar(0,0,0),2);
+   //cv::rectangle(imgmain,myROI,Scalar(255,255,255),1);
     
-  //grayscale_opencv_to_yuv422(imgmain, raw_img_data, imgmain.cols, imgmain.rows);
+   // grayscale_opencv_to_yuv422(imgmain, raw_img_data, imgmain.cols, imgmain.rows);
     
-    rows = imgmain.rows;
-    cols = imgmain.cols;
 
-  //Write the new image in place of the old image
-
-      int i, j;
-      uchar *p;
-      int index_img = 0;
-      for (i = 0; i < rows; ++i) {
-        p = imgmain.ptr<uchar>(i);
-        for (j = 0; j < cols; j++) {
-        //only write the pixel values where the algorithm processes the image
+   //Write the new image over the old image
+   rows = imgmain.rows;
+   cols = imgmain.cols;
+   hor_mid = rows/2; //mid width
+   ver_mid = cols/2; //mid height
+   int i, j, k=0;
+   uchar *p;
+   int index_img = 0;
+   for (i = 0; i < rows; ++i)
+   {
+       //only write the pixel values where the algorithm processes the image
+       if(i>=hor_mid-w_algo/2  && i<=hor_mid+w_algo/2)
+       {
+        p = algo_img.ptr<uchar>(k);
+        k++;
+       }
+        for (j = 0; j < cols; j++)
+        {
         if(i>=hor_mid-w_algo/2  && i<=hor_mid+w_algo/2 && j>=0 && j<=h_algo)
         {
         	raw_img_data[index_img++] = 127;
@@ -175,7 +197,7 @@ int opencv_ourmainf(char *raw_img_data, int width, int height)
 
         }
       }
-
+      //VERBOSE_PRINT("Done Print \n");
 
   return 0;
 }
