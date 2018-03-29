@@ -69,7 +69,7 @@ void video_capture_save(struct image_t *img);
 
 void video_capture_init(void)
 {
-  image_create(&imgshot, 520, 240, IMAGE_YUV422);
+  image_create(&imgshot, 240, 520, IMAGE_YUV422);
 
   // Create the images directory
   char save_name[128];
