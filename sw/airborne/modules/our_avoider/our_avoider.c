@@ -70,13 +70,15 @@ void our_avoider_periodic()
     moveWaypointForward(WP_GOAL, moveDistance);
     moveWaypointForward(WP_TRAJECTORY, 1 * moveDistance);
     nav_set_heading_towards_waypoint(WP_GOAL);
-    chooseRandomIncrementAvoidance();
+
+    // Determine heading
+    DetermineIncrementAvoidance();
     trajectoryConfidence += 1;
   } else {
 	  VERBOSE_PRINT("Color_count: %f !!!!!!!!!!! STOP !!!!!!!!!!", color_count, tresholdColorCount, safeToGoForwards);
     waypoint_set_here_2d(WP_GOAL);
     waypoint_set_here_2d(WP_TRAJECTORY);
-    increase_nav_heading(&nav_heading, 90);
+    increase_nav_heading(&nav_heading, incrementForAvoidance);
     if (trajectoryConfidence > 5) {
       trajectoryConfidence -= 4;
     } else {
@@ -153,6 +155,23 @@ uint8_t chooseRandomIncrementAvoidance()
     VERBOSE_PRINT("Set avoidance increment to: %f\n", incrementForAvoidance);
   } else {
     incrementForAvoidance = -10.0;
+    VERBOSE_PRINT("Set avoidance increment to: %f\n", incrementForAvoidance);
+  }
+  return false;
+}
+
+
+/*
+ * Sets the variable 'incrementForAvoidance' positive/negative based on the side counters
+ */
+uint8_t DetermineIncrementAvoidance()
+{
+
+  if (color_count_right >= color_count_left) {
+    incrementForAvoidance = -20.0;
+    VERBOSE_PRINT("Set avoidance increment to: %f\n", incrementForAvoidance);
+  } else {
+    incrementForAvoidance = 20.0;
     VERBOSE_PRINT("Set avoidance increment to: %f\n", incrementForAvoidance);
   }
   return false;

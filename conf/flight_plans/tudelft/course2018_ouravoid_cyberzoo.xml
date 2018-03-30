@@ -7,6 +7,7 @@
     #include "subsystems/radio_control.h"
     #include "subsystems/ahrs.h"
     #include "modules/sliceimage/sliceimage.h" 
+    #include "modules/our_avoider/our_avoider.h" 
     
     #define NPS_GAZEBO_WORLD "cyberzoo_orange_poles.world"
 </header>
@@ -122,7 +123,7 @@
     </block>
     <block name="GetIntoObstacleZone">
       <while cond="!InsideObstacleZone(GetPosX(),GetPosY())">
-        <call_once fun="moveWaypointForward(WP_GOAL, 0.2)"/>
+        <call_once fun="moveWaypointForward(WP_GOAL, 0.6)"/>
         <go wp="GOAL"/>
       </while>
       <deroute block="START"/>

@@ -57,7 +57,7 @@
     </module-->
     <module name="sliceimage">
     <define name="VIDEO_CAPTURE_CAMERA" value="front_camera"/>
-    <define name="VIDEO_CAPTURE_PATH" value="/home/chatto/paparazzi"/>
+    <define name="VIDEO_CAPTURE_PATH" value="/home/rameshkonatala/paparazzi"/>
     </module>
     <module name="cv_opencvdemo2">
       <define name="OPENCVDEMO_CAMERA" value="front_camera" />

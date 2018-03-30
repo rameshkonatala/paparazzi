@@ -53,11 +53,17 @@ using namespace cv;
 
 //Color count variable. Has been used in our_avoider.c
 float color_count = 0;
+float color_count_right = 0;
+float color_count_left = 0;
 
 // Size of rectangle where pixels are counted
 
 int hrec = 50; //height in pixels
 int wrec = 200; //width in pixels
+
+// Horizontal Size of the lateral rectangles for comparison
+
+int wrec_sides = 60; //height in pixels
 
 //Define size of the reference grass patch
 
@@ -81,7 +87,7 @@ int channels[] = {1,2};
 const float* ranges[] = { uranges, vranges };
 
 //Extra storage matrices used
-Mat element, imgsec, algo_img, imgref1;
+Mat element, imgsec, imgsec_right, imgsec_left, algo_img, imgref1;
 MatND backproj;MatND hist;
 
 //to store the no. of rows and cols
@@ -109,7 +115,6 @@ int opencv_ourmainf(char *raw_img_data, int width, int height)
     imgref = imgref(myROI);
 
     //Select section of the main image to be processed
-
     cv::Rect algo_box(0,hor_mid-w_algo/2, h_algo, w_algo);
     algo_img = imgmain(algo_box);
 
@@ -154,14 +159,28 @@ int opencv_ourmainf(char *raw_img_data, int width, int height)
    cv::Rect recta(0,hor_mid-wrec/2, hrec,wrec);
    imgsec = algo_img(recta);
 
+   //Define the rectangles where pixels are counted at right and left sides
+
+   cv::Rect recta_right(0,hor_mid-wrec/2, hrec,wrec_sides);
+   cv::Rect recta_left(0,hor_mid+wrec/2-wrec_sides, hrec,wrec_sides);
+
+   imgsec_right = algo_img(recta_right);
+   imgsec_left  = algo_img(recta_left);
+
    //Count no. of white pixels
    color_count = countNonZero(imgsec);
+   color_count_right = countNonZero(imgsec_right);
+   color_count_left = countNonZero(imgsec_left);
 
    //White pixel ratio inside the rectangle
    color_count = color_count/(imgsec.rows*imgsec.cols);
+   color_count_right = color_count_right/(imgsec_right.rows*imgsec_right.cols);
+   color_count_left = color_count_left/(imgsec_left.rows*imgsec_left.cols);
 
    //Draw the rectangle on the main image
    cv::rectangle(algo_img,recta,Scalar(0,0,0),2);
+   cv::rectangle(algo_img,recta_right,Scalar(0,0,0),2);
+   cv::rectangle(algo_img,recta_left,Scalar(0,0,0),2);
    //cv::rectangle(imgmain,myROI,Scalar(255,255,255),1);
     
    // grayscale_opencv_to_yuv422(imgmain, raw_img_data, imgmain.cols, imgmain.rows);
