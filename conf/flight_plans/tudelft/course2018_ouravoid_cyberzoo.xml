@@ -17,6 +17,7 @@
     <waypoint name="STDBY" x="1.9" y="1.0"/>
     <waypoint name="TD" x="0.8" y="-1.7"/>
     <waypoint name="GOAL" x="1.9" y="1.0"/>
+    <waypoint name="TRAJECTORY0" x="1.9" y="1.0"/>
     <waypoint name="TRAJECTORY" x="1.9" y="1.0"/>
     <waypoint lat="51.9905836" lon="4.3767729" name="_CZ1"/>
     <waypoint lat="51.9906365" lon="4.3767138" name="_CZ2"/>
@@ -104,21 +105,26 @@
       <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
     </block>
     <block key="s" name="Standby" strip_button="Standby" strip_icon="home.png">
-      <call_once fun="video_capture_shoot()"/>
+<!--       <call_once fun="video_capture_shoot()"/> -->
       <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
       <stay wp="STDBY"/>
     </block>
+    
     <block key="g" name="START" strip_button="Go" strip_icon="lookfore.png">
       <call_once fun="NavSetWaypointHere(WP_GOAL)"/>
       <set var="trajectoryConfidence" value="1"/>
     </block>
-    <block name="StayGoal">
+<!--      <block name="StayGoal">  -->
+<!--       <stay wp="GOAL"/> -->
+<!--       <exception cond="!InsideObstacleZone(WaypointX(WP_TRAJECTORY),WaypointY(WP_TRAJECTORY))" deroute="PrepareObstacleRun"/> -->
+<!--     </block> -->
+     <block name="StayGoal"> 
       <stay wp="GOAL"/>
-      <exception cond="!InsideObstacleZone(WaypointX(WP_TRAJECTORY),WaypointY(WP_TRAJECTORY))" deroute="PrepareObstacleRun"/>
+      <exception cond="!InsideObstacleZone(WaypointX(WP_TRAJECTORY0),WaypointY(WP_TRAJECTORY0))" deroute="PrepareObstacleRun"/>
     </block>
     <block name="PrepareObstacleRun">
-      <while cond="!InsideObstacleZone(WaypointX(WP_TRAJECTORY),WaypointY(WP_TRAJECTORY))">
-        <call_once fun="increase_nav_heading(&nav_heading, 5)"/>
+      <while cond="!InsideObstacleZone(WaypointX(WP_TRAJECTORY0),WaypointY(WP_TRAJECTORY0))">
+        <call_once fun="increase_nav_heading(&nav_heading, incrementForAvoidance)"/>
       </while>
     </block>
     <block name="GetIntoObstacleZone">
@@ -128,6 +134,7 @@
       </while>
       <deroute block="START"/>
     </block>
+
     <block key="l" name="Land here" strip_button="Land Here" strip_icon="land-right.png">
       <call_once fun="NavSetWaypointHere(WP_TD)"/>
       <go wp="TD"/>

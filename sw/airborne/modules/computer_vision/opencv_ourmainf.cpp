@@ -63,7 +63,8 @@ int wrec = 200; //width in pixels
 
 // Horizontal Size of the lateral rectangles for comparison
 
-int wrec_sides = 60; //height in pixels
+int wrec_sides = 100; //width in pixels
+int hrec_sides = 50; //height in pixels
 
 //Define size of the reference grass patch
 
@@ -72,7 +73,7 @@ int ver_sec = 100;//height pixels
 
 //Define size of the region where algorithm is run
 int w_algo = 300; //width
-int h_algo = 100; //height
+int h_algo = 150; //height
 
 //Define picture middle coordinates
 int hor_mid;   //mid width
@@ -163,6 +164,8 @@ int opencv_ourmainf(char *raw_img_data, int width, int height)
 
    cv::Rect recta_right(0,hor_mid-wrec/2, hrec,wrec_sides);
    cv::Rect recta_left(0,hor_mid+wrec/2-wrec_sides, hrec,wrec_sides);
+//   cv::Rect recta_right(hrec,hor_mid, hrec_sides,wrec_sides);
+//   cv::Rect recta_left(hrec,hor_mid-wrec_sides, hrec_sides,wrec_sides);
 
    imgsec_right = algo_img(recta_right);
    imgsec_left  = algo_img(recta_left);
