@@ -84,8 +84,9 @@ int ubins = 256, vbins = 256;
 int histSize[] = {ubins, vbins};
 float uranges[] = { 0, 255 };
 float vranges[] = { 0, 255 };
-int channels[] = {1,2};
-const float* ranges[] = { uranges, vranges };
+float yranges[] = { 0, 255 };
+int channels[] = {0,1,2};
+const float* ranges[] = { yranges, uranges, vranges };
 
 //Extra storage matrices used
 Mat element, imgsec, imgsec_right, imgsec_left, algo_img, imgref1;
@@ -153,7 +154,7 @@ int opencv_ourmainf(char *raw_img_data, int width, int height)
    filter2D(backproj, backproj, -1, element);
 
    //thresholding (Makes the image binary => Pixel values either 0 or 255)
-   threshold(backproj, algo_img, 60, 255, 0);
+   threshold(backproj, algo_img, 100, 255, 0);
 
    //Define the rectangle where pixels are counted
 
