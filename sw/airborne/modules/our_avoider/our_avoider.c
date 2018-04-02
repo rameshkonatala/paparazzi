@@ -40,10 +40,10 @@ uint8_t safeToGoForwards        = false;
 int memoR = 0;
 int memoL = 0;
 //int tresholdColorCount          = 0.05 * 124800; // 520 x 240 = 124.800 total pixels
-float tresholdColorCount          = 0.8;
+float tresholdColorCount          = 0.9;
 float incrementForAvoidance;
 uint16_t trajectoryConfidence   = 1;
-float maxDistance               = 2.25;
+float maxDistance               = 1;
 int turnrate = 5;
 int count_time;
 /*
@@ -71,12 +71,16 @@ void our_avoider_periodic()
   VERBOSE_PRINT("Color_count: %f  \n", color_count, tresholdColorCount, safeToGoForwards);
   printf("Color_count: %f  \n", color_count, tresholdColorCount, safeToGoForwards);
 
-  float moveDistance = fmin(maxDistance, 0.05 * trajectoryConfidence);
+ float moveDistance = fmin(maxDistance, 0.05 * trajectoryConfidence);
+
+  waypoint_set_here_2d(WP_TRAJECTORY0);
+  moveWaypointForward(WP_TRAJECTORY0, 0.9);
+
+
   if (safeToGoForwards) {
 	  VERBOSE_PRINT("Color_count: %f  threshold: %f safe: %d \n", color_count, tresholdColorCount, safeToGoForwards);
     moveWaypointForward(WP_GOAL, moveDistance);
     moveWaypointForward(WP_TRAJECTORY, 1.25 * moveDistance);
-    moveWaypointForward(WP_TRAJECTORY0, 1.25 * moveDistance);
     nav_set_heading_towards_waypoint(WP_GOAL);
 
     // Determine heading
@@ -88,8 +92,7 @@ void our_avoider_periodic()
 
     waypoint_set_here_2d(WP_GOAL);
     waypoint_set_here_2d(WP_TRAJECTORY);
-    waypoint_set_here_2d(WP_TRAJECTORY0);
-    moveWaypointForward(WP_TRAJECTORY0, 0.2 * moveDistance);
+
     increase_nav_heading(&nav_heading, incrementForAvoidance);
     if (trajectoryConfidence > 5) {
       trajectoryConfidence -= 4;
@@ -186,10 +189,10 @@ uint8_t DetermineIncrementAvoidance()
 {
 
   if ((color_count_right < color_count_left ) ){
-    incrementForAvoidance = 10.0;
+    incrementForAvoidance = 25.0;
     VERBOSE_PRINT("Set avoidance increment to: %f\n", incrementForAvoidance);
   } else if ((color_count_right > color_count_left ) ) {
-    incrementForAvoidance = -10.0;
+    incrementForAvoidance = -20.0;
     VERBOSE_PRINT("Set avoidance increment to: %f\n", incrementForAvoidance);
   }
 

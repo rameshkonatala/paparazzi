@@ -59,11 +59,11 @@ float color_count_left = 0;
 // Size of rectangle where pixels are counted
 
 int hrec = 50; //height in pixels
-int wrec = 200; //width in pixels
+int wrec = 220; //width in pixels
 
 // Horizontal Size of the lateral rectangles for comparison
 
-int wrec_sides = 100; //width in pixels
+int wrec_sides = 110; //width in pixels
 int hrec_sides = 50; //height in pixels
 
 //Define size of the reference grass patch
@@ -72,8 +72,8 @@ int hor_sec = 100; //width in pixels
 int ver_sec = 100;//height pixels
 
 //Define size of the region where algorithm is run
-int w_algo = 300; //width
-int h_algo = 150; //height
+int w_algo = 250; //width
+int h_algo = 100; //height
 
 //Define picture middle coordinates
 int hor_mid;   //mid width

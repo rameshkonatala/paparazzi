@@ -8,7 +8,6 @@
     #include "subsystems/ahrs.h"
     #include "modules/sliceimage/sliceimage.h" 
     #include "modules/our_avoider/our_avoider.h" 
-    
     #define NPS_GAZEBO_WORLD "cyberzoo_orange_poles.world"
 </header>
   <waypoints>
@@ -20,8 +19,8 @@
     <waypoint name="TRAJECTORY0" x="1.9" y="1.0"/>
     <waypoint name="TRAJECTORY" x="1.9" y="1.0"/>
     <waypoint lat="51.9905836" lon="4.3767729" name="_CZ1"/>
-    <waypoint lat="51.9906365" lon="4.3767138" name="_CZ2"/>
-    <waypoint lat="51.990680" lon="4.376805" name="_CZ3"/>
+    <waypoint lat="51.990648" lon="4.376704" name="_CZ2"/>
+    <waypoint lat="51.990690" lon="4.376791" name="_CZ3"/>
     <waypoint lat="51.9906226" lon="4.3768699" name="_CZ4"/>
     <waypoint lat="51.990594" lon="4.376776" name="_OZ1"/>
     <waypoint lat="51.990636" lon="4.376733" name="_OZ2"/>
@@ -43,36 +42,25 @@
     </sector>
   </sectors>
   <exceptions>
-    <!-- RC lost -->
-    <!--exception cond="((radio_control.status == RC_REALLY_LOST) &&
-      !(IndexOfBlock('Holding point') > nav_block) &&
-      !(nav_block >= IndexOfBlock('Land here')) &&
-      (autopilot_in_flight() == true) )" deroute="Standby"/-->
-    <!-- Datalink lost (constant RPM descent) -->  
     <exception cond="((datalink_time > 5) &&
       !(IndexOfBlock('Holding point') > nav_block) &&
       !(nav_block >= IndexOfBlock('Land here')) &&
       (autopilot_in_flight() == true) )" deroute="Land here"/>
-    <!-- Geofencing XY -->
     <exception cond="(!InsideCyberZoo(GetPosX(), GetPosY()) &&
       !(IndexOfBlock('Holding point') > nav_block) &&
       !(nav_block >= IndexOfBlock('Land here')) &&
       (autopilot_in_flight() == true) )" deroute="Land here"/>
-    <!-- Geofencing Z 2.5 -->
     <exception cond="((GetPosAlt() > 3.5) &&
       !(IndexOfBlock('Holding point') > nav_block) &&
       !(nav_block >= IndexOfBlock('Land here')) &&
       (autopilot_in_flight() == true) )" deroute="Land here"/>
-    <!-- Geofencing Z 4.5 (constant RPM descent)-->
     <exception cond="((GetPosAlt() > 4.5) &&
       !(IndexOfBlock('Holding point') > nav_block) &&
       (autopilot_in_flight() == true) )" deroute="Landed"/>
-    <!-- Bat low -->  
     <exception cond="(electrical.bat_low &&
       !(IndexOfBlock('Holding point') > nav_block) &&
       !(nav_block >= IndexOfBlock('Land here')) &&
       (autopilot_in_flight() == true) )" deroute="Land here"/>
-    <!-- Bat critical (constant RPM no stabilization)-->
     <exception cond="(electrical.bat_critical &&
       !(IndexOfBlock('Holding point') > nav_block) &&
       !(nav_block >= IndexOfBlock('Land here')) &&
@@ -92,8 +80,8 @@
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
     <block key="p" name="Take photo" strip_button="take photo" strip_icon="digital-camera.png">
-	  <call_once fun="video_capture_shoot()"/>
-	</block>
+      <call_once fun="video_capture_shoot()"/>
+    </block>
     <block key="r" name="Start Engine">
       <call_once fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
@@ -105,27 +93,22 @@
       <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
     </block>
     <block key="s" name="Standby" strip_button="Standby" strip_icon="home.png">
-<!--       <call_once fun="video_capture_shoot()"/> -->
       <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
       <stay wp="STDBY"/>
     </block>
-    
     <block key="g" name="START" strip_button="Go" strip_icon="lookfore.png">
       <call_once fun="NavSetWaypointHere(WP_GOAL)"/>
-      <set var="trajectoryConfidence" value="1"/>
+      <call_once fun="NavSetWaypointHere(WP_TRAJECTORY0)"/>
+      <set value="1" var="trajectoryConfidence"/>
     </block>
-<!--      <block name="StayGoal">  -->
-<!--       <stay wp="GOAL"/> -->
-<!--       <exception cond="!InsideObstacleZone(WaypointX(WP_TRAJECTORY),WaypointY(WP_TRAJECTORY))" deroute="PrepareObstacleRun"/> -->
-<!--     </block> -->
-     <block name="StayGoal"> 
+    <block name="StayGoal">
       <stay wp="GOAL"/>
-      <exception cond="!InsideObstacleZone(WaypointX(WP_TRAJECTORY0),WaypointY(WP_TRAJECTORY0))" deroute="PrepareObstacleRun"/>
     </block>
     <block name="PrepareObstacleRun">
       <while cond="!InsideObstacleZone(WaypointX(WP_TRAJECTORY0),WaypointY(WP_TRAJECTORY0))">
         <call_once fun="increase_nav_heading(&nav_heading, incrementForAvoidance)"/>
       </while>
+      <deroute block="START"/>
     </block>
     <block name="GetIntoObstacleZone">
       <while cond="!InsideObstacleZone(GetPosX(),GetPosY())">
@@ -134,7 +117,6 @@
       </while>
       <deroute block="START"/>
     </block>
-
     <block key="l" name="Land here" strip_button="Land Here" strip_icon="land-right.png">
       <call_once fun="NavSetWaypointHere(WP_TD)"/>
       <go wp="TD"/>
