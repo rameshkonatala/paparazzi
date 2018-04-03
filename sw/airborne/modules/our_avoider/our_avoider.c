@@ -43,7 +43,7 @@ int memoL = 0;
 float tresholdColorCount          = 0.9;
 float incrementForAvoidance;
 uint16_t trajectoryConfidence   = 1;
-float maxDistance               = 1;
+float maxDistance               = 2;
 int turnrate = 5;
 int count_time;
 /*
@@ -71,23 +71,25 @@ void our_avoider_periodic()
   VERBOSE_PRINT("Color_count: %f  \n", color_count, tresholdColorCount, safeToGoForwards);
   printf("Color_count: %f  \n", color_count, tresholdColorCount, safeToGoForwards);
 
- float moveDistance = fmin(maxDistance, 0.05 * trajectoryConfidence);
+ float moveDistance = fmin(maxDistance, 0.1 * trajectoryConfidence);
 
   waypoint_set_here_2d(WP_TRAJECTORY0);
   moveWaypointForward(WP_TRAJECTORY0, 0.9);
 
 
   if (safeToGoForwards) {
-	  VERBOSE_PRINT("Color_count: %f  threshold: %f safe: %d \n", color_count, tresholdColorCount, safeToGoForwards);
+//	  VERBOSE_PRINT("Color_count: %f  threshold: %f safe: %d \n", color_count, tresholdColorCount, safeToGoForwards);
     moveWaypointForward(WP_GOAL, moveDistance);
     moveWaypointForward(WP_TRAJECTORY, 1.25 * moveDistance);
     nav_set_heading_towards_waypoint(WP_GOAL);
+
+    VERBOSE_PRINT("distance next way point: %f   \n",moveDistance);
 
     // Determine heading
     DetermineIncrementAvoidance();
     trajectoryConfidence += 1;
   } else {
-	  VERBOSE_PRINT("Color_count: %f !!!!!!!!!!! STOP !!!!!!!!!!", color_count, tresholdColorCount, safeToGoForwards);
+//	  VERBOSE_PRINT("Color_count: %f !!!!!!!!!!! STOP !!!!!!!!!!", color_count, tresholdColorCount, safeToGoForwards);
 
 
     waypoint_set_here_2d(WP_GOAL);
