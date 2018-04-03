@@ -46,6 +46,7 @@ uint16_t trajectoryConfidence   = 1;
 float maxDistance               = 1;
 int turnrate = 5;
 int count_time;
+int temp=1;
 /*
  * Initialisation function, setting the colour filter, random seed and incrementForAvoidance
  */
@@ -81,14 +82,23 @@ void our_avoider_periodic()
 	  VERBOSE_PRINT("Color_count: %f  threshold: %f safe: %d \n", color_count, tresholdColorCount, safeToGoForwards);
     moveWaypointForward(WP_GOAL, moveDistance);
     moveWaypointForward(WP_TRAJECTORY, 1.25 * moveDistance);
-    nav_set_heading_towards_waypoint(WP_GOAL);
-
+    if (temp==1){
+    nav_set_heading_towards_waypoint(WP__CZ1);
+    } else if (temp==2){
+    nav_set_heading_towards_waypoint(WP__CZ2);
+    }
+    else if (temp==3){
+    nav_set_heading_towards_waypoint(WP__CZ3);
+    }
+    else if (temp==4){
+    nav_set_heading_towards_waypoint(WP__CZ4);
+    }
     // Determine heading
     DetermineIncrementAvoidance();
     trajectoryConfidence += 1;
   } else {
 	  VERBOSE_PRINT("Color_count: %f !!!!!!!!!!! STOP !!!!!!!!!!", color_count, tresholdColorCount, safeToGoForwards);
-
+	int temp = 4;
 
     waypoint_set_here_2d(WP_GOAL);
     waypoint_set_here_2d(WP_TRAJECTORY);
