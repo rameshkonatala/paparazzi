@@ -72,8 +72,8 @@ int hor_sec = 100; //width in pixels
 int ver_sec = 100;//height pixels
 
 //Define size of the region where algorithm is run
-int w_algo = 250; //width
-int h_algo = 100; //height
+int w_algo = 220; //width
+int h_algo = 50; //height
 
 //Define picture middle coordinates
 int hor_mid;   //mid width
@@ -82,10 +82,11 @@ int ver_mid;   //mid height
 //Histogram Backprojection specifications //??? TRY TO USE Y CHANNEL AS WELL ????
 int ubins = 256, vbins = 256;
 int histSize[] = {ubins, vbins};
+float yranges[] = { 0, 255 };
 float uranges[] = { 0, 255 };
 float vranges[] = { 0, 255 };
 int channels[] = {1,2};
-const float* ranges[] = { uranges, vranges };
+const float* ranges[] = {  uranges, vranges };
 
 //Extra storage matrices used
 Mat element, imgsec, imgsec_right, imgsec_left, algo_img, imgref1;
@@ -145,7 +146,7 @@ int opencv_ourmainf(char *raw_img_data, int width, int height)
 
   //Histogram Backprojection
 
-   calcBackProject( &algo_img, 1, channels, hist, backproj, ranges, 10, true );
+   calcBackProject( &algo_img, 1, channels, hist, backproj, ranges, 0.8, true );
 
    //Blurring to remove noise
 

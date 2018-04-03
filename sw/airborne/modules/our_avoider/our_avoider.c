@@ -37,15 +37,15 @@
 
 
 uint8_t safeToGoForwards        = false;
-int memoR = 0;
-int memoL = 0;
+//int memoR = 0;
+//int memoL = 0;
 //int tresholdColorCount          = 0.05 * 124800; // 520 x 240 = 124.800 total pixels
 float tresholdColorCount          = 0.9;
 float incrementForAvoidance;
 uint16_t trajectoryConfidence   = 1;
-float maxDistance               = 2;
+float maxDistance               = 1.5;
 int turnrate = 5;
-int count_time;
+//int count_time;
 /*
  * Initialisation function, setting the colour filter, random seed and incrementForAvoidance
  */
@@ -54,7 +54,7 @@ void our_avoider_init()
   // Initialise the variables of the colorfilter to accept orange
   // Initialise random values
   srand(time(NULL));
-  count_time = 0;
+//  count_time = 0;
   chooseRandomIncrementAvoidance();
 }
 
@@ -63,7 +63,7 @@ void our_avoider_init()
  */
 void our_avoider_periodic()
 {
-	count_time++;
+//	count_time++;
   // Check the amount of orange. If this is above a threshold
   // you want to turn a certain amount of degrees
   safeToGoForwards = color_count > tresholdColorCount;
@@ -71,7 +71,7 @@ void our_avoider_periodic()
   VERBOSE_PRINT("Color_count: %f  \n", color_count, tresholdColorCount, safeToGoForwards);
   printf("Color_count: %f  \n", color_count, tresholdColorCount, safeToGoForwards);
 
- float moveDistance = fmin(maxDistance, 0.1 * trajectoryConfidence);
+ float moveDistance = fmin(maxDistance, 0.05 * trajectoryConfidence);
 
   waypoint_set_here_2d(WP_TRAJECTORY0);
   moveWaypointForward(WP_TRAJECTORY0, 0.9);
@@ -101,12 +101,12 @@ void our_avoider_periodic()
     } else {
       trajectoryConfidence = 1;
     }
-    if (incrementForAvoidance > 0) {
-    	//turning to the left
-    	memoL = count_time;
-    } else {
-    	memoR = count_time;
-    }
+//    if (incrementForAvoidance > 0) {
+//    	//turning to the left
+//    	memoL = count_time;
+//    } else {
+//    	memoR = count_time;
+//    }
   }
   return;
 }
@@ -191,7 +191,7 @@ uint8_t DetermineIncrementAvoidance()
 {
 
   if ((color_count_right < color_count_left ) ){
-    incrementForAvoidance = 25.0;
+    incrementForAvoidance = 15.0;
     VERBOSE_PRINT("Set avoidance increment to: %f\n", incrementForAvoidance);
   } else if ((color_count_right > color_count_left ) ) {
     incrementForAvoidance = -20.0;
