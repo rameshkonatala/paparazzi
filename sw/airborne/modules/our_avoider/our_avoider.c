@@ -67,11 +67,11 @@ void our_avoider_periodic()
   // Check the amount of orange. If this is above a threshold
   // you want to turn a certain amount of degrees
   safeToGoForwards = color_count > tresholdColorCount;
-
+  uint8_t trajectoryConfidenceLeap[9] = {0,1,2,4,8,16,30,50,120};
   VERBOSE_PRINT("Color_count: %f  \n", color_count, tresholdColorCount, safeToGoForwards);
   printf("Color_count: %f  \n", color_count, tresholdColorCount, safeToGoForwards);
-
- float moveDistance = fmin(maxDistance, 0.05 * trajectoryConfidence);
+  VERBOSE_PRINT("trajectoryConfidence: %d   \n",trajectoryConfidence);
+  double moveDistance = fmin(maxDistance, 0.0125 * trajectoryConfidenceLeap[trajectoryConfidence]);
 
   waypoint_set_here_2d(WP_TRAJECTORY0);
   moveWaypointForward(WP_TRAJECTORY0, 0.9);
@@ -87,7 +87,11 @@ void our_avoider_periodic()
 
     // Determine heading
     DetermineIncrementAvoidance();
-    trajectoryConfidence += 1;
+    if (trajectoryConfidence<8)
+    {
+      trajectoryConfidence += 1;
+    }
+    
   } else {
 //	  VERBOSE_PRINT("Color_count: %f !!!!!!!!!!! STOP !!!!!!!!!!", color_count, tresholdColorCount, safeToGoForwards);
 
@@ -96,11 +100,11 @@ void our_avoider_periodic()
     waypoint_set_here_2d(WP_TRAJECTORY);
 
     increase_nav_heading(&nav_heading, incrementForAvoidance);
-    if (trajectoryConfidence > 5) {
-      trajectoryConfidence -= 4;
-    } else {
-      trajectoryConfidence = 1;
+    if (trajectoryConfidence>1)
+    {
+      trajectoryConfidence-=1;
     }
+    
 //    if (incrementForAvoidance > 0) {
 //    	//turning to the left
 //    	memoL = count_time;
