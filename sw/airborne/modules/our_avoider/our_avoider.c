@@ -67,7 +67,7 @@ void our_avoider_periodic()
   // Check the amount of orange. If this is above a threshold
   // you want to turn a certain amount of degrees
   safeToGoForwards = color_count > tresholdColorCount;
-  uint8_t trajectoryConfidenceLeap[9] = {0,1,5,10,20,40,60,90,120};
+  uint8_t trajectoryConfidenceLeap[9] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30};
   VERBOSE_PRINT("Color_count: %f  \n", color_count, tresholdColorCount, safeToGoForwards);
   printf("Color_count: %f  \n", color_count, tresholdColorCount, safeToGoForwards);
   VERBOSE_PRINT("trajectoryConfidence: %d   \n",trajectoryConfidence);
